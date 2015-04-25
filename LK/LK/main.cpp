@@ -52,21 +52,21 @@ int main(int argc, char *argv[])
 		Image J(PyramidJ[L]);
 
 		// window size can be adjusted if necessary, whole image by default (-1 for purpose of gradient calculation)
-		int wx = PyramidI[L].size().width/2-1, wy = PyramidI[L].size().height/2-1;
+		int wx = PyramidI[L].size().width, wy = PyramidI[L].size().height;
 
 		//translate image I (to do it centralized at the point of interest -- may be as in ITK centralize to mass center)
 		//Moments mI = moments(PyramidI[L]);
 		//Vec2d uI( int(mI.m10/mI.m00), int(mI.m01/mI.m00));		// -- mass center to centralize fixed image, also a point of interest, since there's no
 												// feature point for entire picture or some region
-		Vec2d uI(PyramidI[L].size().width/2-1, PyramidI[L].size().height/2-1);
-		I.Centralise(uI);
-		cout<<"Center for I = "<< uI<<endl;
+		//Vec2d uI(PyramidI[L].size().width/2-1, PyramidI[L].size().height/2-1);
+		//I.Centralise(uI);
+		//cout<<"Center for I = "<< uI<<endl;
 
 		//Moments mJ = moments(PyramidJ[L]);
 		//Vec2d uJ( int(mJ.m10/mJ.m00), int(mJ.m01/mJ.m00));
-		Vec2d uJ(PyramidJ[L].size().width/2-1, PyramidJ[L].size().height/2-1);
-		J.Centralise(uJ);
-		cout<<"Center for J = "<< uJ<<endl;
+		//Vec2d uJ(PyramidJ[L].size().width/2-1, PyramidJ[L].size().height/2-1);
+		//J.Centralise(uJ);
+		//cout<<"Center for J = "<< uJ<<endl;
 
 		cout<<"Calculating G (grad matrix)..."<<endl;
 		Mat G = calcGradMatrix(I, wx, wy);

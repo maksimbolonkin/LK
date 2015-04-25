@@ -90,9 +90,9 @@ Mat calcGradMatrix(Image I, int wx, int wy)
 {
 	Mat G = Mat::zeros(6,6,CV_64FC1);
 	Mat temp = I.getImage();
-	for(int x = -wx; x<= wx; x++)
+	for(int x = 0; x < wx; x++)
 	{
-		for(int y = -wy; y<=wy; y++)
+		for(int y = 0; y< wy; y++)
 		{
 			Vec2d gI = I.grad(x,y);
 			double Ix = gI[0], Iy = gI[1];
@@ -106,9 +106,9 @@ Mat calcGradMatrix(Image I, int wx, int wy)
 Mat calcDiffVector(Image I, Image J, int wx, int wy)
 {
 	Mat b = Mat::zeros(6,1,CV_64FC1);
-	for(int x = -wx; x<= wx; x++)
+	for(int x = 0; x < wx; x++)
 	{
-		for(int y = -wy; y<=wy; y++)
+		for(int y = 0; y < wy; y++)
 		{
 			double delta = I.at(x,y) - J.at(x,y);
 
