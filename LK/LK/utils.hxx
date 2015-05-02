@@ -95,7 +95,7 @@ Mat calcGradMatrix(Image I, int wx, int wy)
 		for(int y = 0; y< wy; y++)
 		{
 			Vec2d gI = I.grad(x,y);
-			double Ix = gI[0], Iy = gI[1];
+			double Ix = gI[0]*sin(CV_PI*x/(wx-1)), Iy = gI[1]*sin(CV_PI*y/(wy-1));
 			Mat D2 = (Mat_<double>(6,1) << Ix, Iy, x*Ix, y*Ix, x*Iy, y*Iy);
 			G += D2*D2.t();			
 		}
@@ -106,11 +106,13 @@ Mat calcGradMatrix(Image I, int wx, int wy)
 Mat calcDiffVector(Image I, Image J, int wx, int wy)
 {
 	Mat b = Mat::zeros(6,1,CV_64FC1);
+	//Mat Gx = getGaussianKernel(wx, -1), Gy = getGaussianKernel(wy,-1);
+	//Mat G = Gy*Gx.t();
 	for(int x = 0; x < wx; x++)
 	{
 		for(int y = 0; y < wy; y++)
 		{
-			double delta = I.at(x,y) - J.at(x,y);
+			double delta = (I.at(x,y) - J.at(x,y))*sin(CV_PI*x/(wx-1))*sin(CV_PI*y/(wy-1));
 
 			Vec2d gI = I.grad(x,y);
 			double Ix = gI[0], Iy = gI[1];
@@ -153,7 +155,7 @@ Mat GetPyramidNextLevel(Mat I)
 Mat regImage(Mat fixed, Mat moving)
 {
 	int MaxIter = 25;	// could be set by user
-	double eps = 0.001;	// could be set by user
+	double eps = 0.00001;	// could be set by user
 
 	//creating pyramids
 	Mat PyramidI[5], PyramidJ[5];

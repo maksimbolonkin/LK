@@ -21,11 +21,11 @@ int main(int argc, char *argv[])
 	//Point2f src[3]; src[0] = Point2f(50, 50); src[1] = Point2f(200, 50); src[2] = Point2f(50, 200); 
 	//Point2f dst[3]; dst[0] = Point2f(40, 40); dst[1] = Point2f(200, 40); dst[2] = Point2f(180, 60); 
 	//Mat X = getAffineTransform(src, dst);
-	Mat X = getRotationMatrix2D(Point2f(190, 100), -35, 0.9);
+	Mat X = getRotationMatrix2D(Point2f(220, 110), 17, 1.1);
 	cout<<X<<endl;
 	Mat moving;
 	warpAffine(fixed, moving, X, fixed.size());
-	imwrite("genmoving.jpeg", moving);
+	imwrite("wgenmoving.jpeg", moving);
 
 	cout<<"Images have been read..."<<endl;
 
@@ -35,6 +35,6 @@ int main(int argc, char *argv[])
 	Mat newimg;
 	warpAffine(fixed, newimg, aff, moving.size());
 
-	imwrite("new.jpeg", newimg);
+	imwrite(argv[3], newimg);
 
 }
