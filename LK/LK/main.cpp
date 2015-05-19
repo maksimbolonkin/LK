@@ -1,40 +1,48 @@
 
 #include "utils.hxx"
-
+#include <fstream>
 
 
 int main(int argc, char *argv[])
 {
+	ofstream fout("result.txt");
 
-	if(argc<3)
-	{
-		cout<<"Enter two filenames: fixed image and moving image."<<endl;
-		exit(-1);
-	}
 
-	Mat fixed = imread(argv[1], CV_LOAD_IMAGE_GRAYSCALE);
-	fixed.convertTo(fixed, CV_64FC1);
-	//Mat moving = imread(argv[2], CV_LOAD_IMAGE_GRAYSCALE);
-	//moving.convertTo(moving, CV_64FC1);
-	// read the images I J
+	Mat bg = imread("background1.jpeg", CV_LOAD_IMAGE_GRAYSCALE);
+	bg.convertTo(bg, CV_64FC1);
+	Mat pattern = imread("pattern.jpeg", CV_LOAD_IMAGE_GRAYSCALE);
+	pattern.convertTo(pattern, CV_64FC1);
 
-	//Point2f src[3]; src[0] = Point2f(50, 50); src[1] = Point2f(200, 50); src[2] = Point2f(50, 200); 
-	//Point2f dst[3]; dst[0] = Point2f(40, 40); dst[1] = Point2f(200, 40); dst[2] = Point2f(180, 60); 
-	//Mat X = getAffineTransform(src, dst);
-	Mat X = getRotationMatrix2D(Point2f(220, 110), 17, 1.1);
-	cout<<X<<endl;
-	Mat moving;
-	warpAffine(fixed, moving, X, fixed.size());
-	imwrite("wgenmoving.jpeg", moving);
+	// resize pattern
+	Mat newpat;
+	resize(pattern, newpat, Size(0,0), 1.0, 1.0, INTER_LINEAR);
 
-	cout<<"Images have been read..."<<endl;
+	Mat fixed = formImage(bg, pattern, Point2d(100, 100));
+	Mat moving = formImage(bg, newpat, Point2d(105, 100));
 
-	Mat aff = regImage(fixed, moving);
+	int wx = MAX(pattern.size().width, newpat.size().width), wy = MAX(pattern.size().height, newpat.size().height);
 
-	cout<<aff<<endl;
+	imwrite("1.jpeg", fixed);
+	imwrite("2.jpeg", moving);
+
+
+	//cout<<"Images have been read..."<<endl;
+
+	ImageRegistrationLK reg;
+	reg.setFixedImage(fixed);
+	reg.setMovingImage(moving);
+	reg.setNumberOfLevels(3);
+	reg.setWindowSize( Size(wx,wy));
+	reg.setWindowOffset(Point2d(100,100));
+	reg.runRegistration();
+
+	Mat aff = reg.getTransform();
+
+	fout<<aff<<endl;
 	Mat newimg;
 	warpAffine(fixed, newimg, aff, moving.size());
 
 	imwrite(argv[3], newimg);
 
+	fout.close();
 }

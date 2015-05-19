@@ -4,7 +4,7 @@
     <ShowAllFiles>false</ShowAllFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>wfixed.jpeg wmoving.jpeg wnew.jpeg</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>wfixed.jpeg wmoving.jpeg 3.jpeg</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>
