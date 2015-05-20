@@ -120,6 +120,10 @@ private:
 			Point maxLoc;
 			minMaxLoc( windowMask, &minVal, &maxVal, &minLoc, &maxLoc );
 			Rmax = maxVal;
+
+			Mat nim;
+			normalize(windowMask, nim,0.0, 255.0, NORM_MINMAX);
+			imwrite("m1.jpeg", nim);
 		}
 		void setDefaultMask(Size sz)
 		{
@@ -135,7 +139,11 @@ private:
 			minMaxLoc( windowMask, &minVal, &maxVal, &minLoc, &maxLoc );
 			Rmax = maxVal;
 
-			Mat t = Mat::ones(sz, CV_64FC1)*Rmax - windowMask;
+			windowMask = Mat::ones(sz, CV_64FC1)*Rmax - windowMask;
+
+			Mat nim;
+			normalize(windowMask, nim,0.0, 255.0, NORM_MINMAX);
+			imwrite("m1.jpeg", nim);
 		}
 		double getValue(int x, int y) 
 		{ 

@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 	ofstream fout("result.txt");
 
 
-	Mat bg = imread("background1.jpeg", CV_LOAD_IMAGE_GRAYSCALE);
+	Mat bg = imread("background.jpeg", CV_LOAD_IMAGE_GRAYSCALE);
 	bg.convertTo(bg, CV_64FC1);
 	Mat pattern = imread("pattern.jpeg", CV_LOAD_IMAGE_GRAYSCALE);
 	pattern.convertTo(pattern, CV_64FC1);
