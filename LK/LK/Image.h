@@ -1,3 +1,5 @@
+#pragma once
+
 #include <opencv\cv.h>
 #include <iostream>
 #include <opencv\highgui.h>

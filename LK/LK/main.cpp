@@ -1,5 +1,4 @@
 #include "ImageRegistrationLK.h"
-#include "MRFSegmentation.h"
 #include "utils.hxx"
 #include <fstream>
 
@@ -34,11 +33,11 @@ int main(int argc, char *argv[])
 	ImageRegistrationLK reg;
 	reg.setFixedImage(fixed);
 	reg.setMovingImage(moving);
-	reg.setNumberOfLevels(3);
+	reg.setNumberOfLevels(4);
 	reg.setMaxIterations(100);
 	reg.setWindowSize( Size(wx,wy));
 	reg.setWindowOffset(Point2d(100,100));
-	reg.setMask(mask);
+	//reg.setMask(mask);
 	reg.runRegistration();
 
 	Mat aff = reg.getTransform();
@@ -47,24 +46,21 @@ int main(int argc, char *argv[])
 	Mat newimg;
 	warpAffine(fixed, newimg, aff, moving.size());
 
-	Mat diffIm = reg.markPatternAndBackground(fixed, moving, aff, Point2d(100,100),  Size(wx,wy));
-	//for(int i=0; i<pattern.size().width; i++)
-	//	for(int j=0; j<pattern.size().height; j++)
-	//		diffIm.at<float>(j,i) = abs(newimg.at<double>(j+95,i+105) - moving.at<double>(j+95,i+105));
-	double minVal; 
-	double maxVal; 
-	Point minLoc; 
-	Point maxLoc;
-	minMaxLoc( diffIm, &minVal, &maxVal, &minLoc, &maxLoc ); 
+	//Mat diffIm = reg.markPatternAndBackground(fixed, moving, aff, Point2d(100,100),  Size(wx,wy));
+
+	//reg.setMask(diffIm);
+	//reg.runRegistration();
 	
-	imwrite("after-3x3-calculating.jpeg", diffIm);
-	threshold(diffIm, diffIm, 5.0, 255.0, THRESH_BINARY);
-	imwrite("after-thresholding.jpeg", diffIm);
+	//imwrite("after-3x3-calculating.jpeg", diffIm);
+	//threshold(diffIm, diffIm, 1.0, 255.0, THRESH_BINARY);
+	//imwrite("after-thresholding.jpeg", diffIm);
 	//diffIm.convertTo(diffIm, CV_8UC1);
 	//equalizeHist(diffIm, diffIm);
 	//imwrite("diff.jpeg", diffIm);
 
-	patternSegmentation(diffIm, 2);
+	//patternSegmentation(diffIm, 2);
+
+
 
 	imwrite(argv[3], newimg);
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Image.h"
 #include <vector>
 
@@ -13,6 +15,7 @@ private:
 	Mat affTransform;
 	Size window;
 	Point2d offset;
+	bool _isMaskSet;
 
 	class WindowFunction
 	{

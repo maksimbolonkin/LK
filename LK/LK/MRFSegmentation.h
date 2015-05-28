@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string.h>
 #include <time.h>
 #include <opencv\cv.h>
@@ -10,4 +12,4 @@
 using namespace std;
 using namespace cv;
 
-void patternSegmentation(Mat I, int num_labels);
+Mat patternSegmentation(Mat I, int num_labels);

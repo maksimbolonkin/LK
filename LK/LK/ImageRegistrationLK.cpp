@@ -1,4 +1,5 @@
 #include "ImageRegistrationLK.h"
+#include "MRFSegmentation.h"
 
 void ImageRegistrationLK::WindowFunction::setMask(Mat m, int wx , int wy) 
 { 
@@ -120,6 +121,7 @@ ImageRegistrationLK::ImageRegistrationLK()
 	eps = 0.00001;	
 	NumOfLevels = 2;
 	affTransform = Mat(2,3,CV_64FC1);
+	_isMaskSet=false;
 }
 
 void ImageRegistrationLK::setMaxIterations(int it) { MaxIter = it; }
@@ -175,8 +177,10 @@ void ImageRegistrationLK::runRegistration()
 		J.Centralise(Vec2d(int(offset.x) >> L, int(offset.y) >> L));
 
 		//setting mask
-		//w.setMask(mask, wx,wy);
-		w.setDefaultMask(Size(wx,wy));
+		if(_isMaskSet)
+			w.setMask(mask, wx,wy);
+		else
+			w.setDefaultMask(Size(wx,wy));
 
 		cout<<"Calculating G (grad matrix)..."<<endl;
 		Mat G = calcGradMatrix(I, wx, wy);
@@ -231,16 +235,18 @@ void ImageRegistrationLK::runRegistration()
 		affTransform.at<double>(1,0) = A.at<double>(1,0); affTransform.at<double>(1,1) = A.at<double>(1,1);
 		affTransform.at<double>(0,2) = v.at<double>(0,0)*(1<<L); affTransform.at<double>(1,2) = v.at<double>(1,0)*(1<<L);
 
-		//if(L>0)
-		//{
-		//	Mat windowMask = Mat( markPatternAndBackground(PyramidI[L-1], PyramidJ[L-1], 
-		//		affTransform, Point2d(int(offset.x) >> L-1, int(offset.y) >> L-1), 
-		//		Size(window.width >> L-1, window.height >> L-1)));
+		if(L>0)
+		{
+			Mat windowMask = Mat( markPatternAndBackground(PyramidI[L-1], PyramidJ[L-1], 
+				affTransform, Point2d(int(offset.x) >> L-1, int(offset.y) >> L-1), 
+				Size(window.width >> L-1, window.height >> L-1)));
 
-		//	imwrite("pat1.jpeg", windowMask); 
+			// segmentation with 2 labels
+			windowMask = patternSegmentation(windowMask, 2);
 
-		//	w.setMask(windowMask);
-		//}
+			windowMask.copyTo(mask);
+			_isMaskSet = true;
+		}
 	}	// end of pyramid loop
 
 
@@ -304,6 +310,7 @@ Mat ImageRegistrationLK::markPatternAndBackground(Mat fixed, Mat moving, Mat aff
 void ImageRegistrationLK::setMask(Mat m)
 {
 	m.copyTo(mask);
+	_isMaskSet = true;
 }
 
 double ImageRegistrationLK::calcSquareDifference(Image I, Image J, int wx, int wy)
