@@ -80,13 +80,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GCO\GCoptimization.cpp" />
+    <ClCompile Include="GCO\graph.cpp" />
+    <ClCompile Include="GCO\LinkedBlockList.cpp" />
+    <ClCompile Include="GCO\maxflow.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageRegistrationLK.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MRFSegmentation.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GCO\block.h" />
+    <ClInclude Include="GCO\energy.h" />
+    <ClInclude Include="GCO\GCoptimization.h" />
+    <ClInclude Include="GCO\graph.h" />
+    <ClInclude Include="GCO\LinkedBlockList.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="ImageRegistrationLK.h" />
+    <ClInclude Include="MRFSegmentation.h" />
     <ClInclude Include="utils.hxx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

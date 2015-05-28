@@ -39,9 +39,9 @@ void ImageRegistrationLK::WindowFunction::setDefaultMask(Size sz)
 
 	windowMask = Mat::ones(sz, CV_64FC1)*Rmax - windowMask;
 
-	Mat nim;
-	normalize(windowMask, nim,0.0, 255.0, NORM_MINMAX);
-	imwrite("m1.jpeg", nim);
+	//Mat nim;
+	//normalize(windowMask, nim,0.0, 255.0, NORM_MINMAX);
+	//imwrite("m1.jpeg", nim);
 }
 
 double ImageRegistrationLK::WindowFunction::getValue(int x, int y) 
@@ -175,7 +175,8 @@ void ImageRegistrationLK::runRegistration()
 		J.Centralise(Vec2d(int(offset.x) >> L, int(offset.y) >> L));
 
 		//setting mask
-		w.setMask(mask, wx,wy);
+		//w.setMask(mask, wx,wy);
+		w.setDefaultMask(Size(wx,wy));
 
 		cout<<"Calculating G (grad matrix)..."<<endl;
 		Mat G = calcGradMatrix(I, wx, wy);
@@ -297,7 +298,7 @@ Mat ImageRegistrationLK::markPatternAndBackground(Mat fixed, Mat moving, Mat aff
 						}
 			}
 
-			return fmap;
+		return fmap;
 }
 
 void ImageRegistrationLK::setMask(Mat m)

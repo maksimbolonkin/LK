@@ -24,6 +24,21 @@
     <ClCompile Include="ImageRegistrationLK.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GCO\GCoptimization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GCO\graph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GCO\LinkedBlockList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GCO\maxflow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MRFSegmentation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils.hxx">
@@ -33,6 +48,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ImageRegistrationLK.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GCO\block.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GCO\energy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GCO\GCoptimization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GCO\graph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GCO\LinkedBlockList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MRFSegmentation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
