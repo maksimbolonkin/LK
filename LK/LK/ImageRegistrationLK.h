@@ -55,4 +55,5 @@ public:
 	void runRegistration();
 
 	Mat markPatternAndBackground(Mat fixed, Mat moving, Mat aff, Point2d pos, Size window);
+	Mat getDifference();
 };

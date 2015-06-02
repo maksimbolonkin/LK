@@ -19,9 +19,9 @@ void ImageRegistrationLK::WindowFunction::setMask(Mat m, int wx , int wy)
 	minMaxLoc( windowMask, &minVal, &maxVal, &minLoc, &maxLoc );
 	Rmax = maxVal;
 
-	//Mat nim;
-	//normalize(windowMask, nim,0.0, 255.0, NORM_MINMAX);
-	//imwrite("m1.jpeg", nim);
+	Mat nim;
+	normalize(windowMask, nim,0.0, 255.0, NORM_MINMAX);
+	imwrite("m1.jpeg", nim);
 }
 
 void ImageRegistrationLK::WindowFunction::setDefaultMask(Size sz)
@@ -40,20 +40,21 @@ void ImageRegistrationLK::WindowFunction::setDefaultMask(Size sz)
 
 	windowMask = Mat::ones(sz, CV_64FC1)*Rmax - windowMask;
 
-	//Mat nim;
-	//normalize(windowMask, nim,0.0, 255.0, NORM_MINMAX);
-	//imwrite("m1.jpeg", nim);
+	Mat nim;
+	normalize(windowMask, nim,0.0, 255.0, NORM_MINMAX);
+	imwrite("m1.jpeg", nim);
 }
 
 double ImageRegistrationLK::WindowFunction::getValue(int x, int y) 
 { 
+	//return 1.0;
 	double R = windowMask.at<double>(y,x);
 	return (1-cos(CV_PI*R/Rmax));
 }
 
 Mat ImageRegistrationLK::calcGradMatrix(Image I, int wx, int wy)
 {
-	Mat G = Mat::zeros(6,6,CV_64FC1);
+	Mat G = Mat::zeros(2,2,CV_64FC1);
 	Mat temp = I.getImage();
 	for(int x = 0; x < wx; x++)
 	{
@@ -61,7 +62,7 @@ Mat ImageRegistrationLK::calcGradMatrix(Image I, int wx, int wy)
 		{
 			Vec2d gI = I.grad(x,y);
 			double Ix = gI[0]*sqrt(w.getValue(x,y)), Iy = gI[1]*sqrt(w.getValue(x,y));
-			Mat D2 = (Mat_<double>(6,1) << Ix, Iy, x*Ix, y*Ix, x*Iy, y*Iy);
+			Mat D2 = (Mat_<double>(2,1) << Ix, Iy);
 			G += D2*D2.t();			
 		}
 	}
@@ -69,7 +70,7 @@ Mat ImageRegistrationLK::calcGradMatrix(Image I, int wx, int wy)
 }
 Mat ImageRegistrationLK::calcDiffVector(Image I, Image J, int wx, int wy)
 {
-	Mat b = Mat::zeros(6,1,CV_64FC1);
+	Mat b = Mat::zeros(2,1,CV_64FC1);
 	//Mat Gx = getGaussianKernel(wx, -1), Gy = getGaussianKernel(wy,-1);
 	//Mat G = Gy*Gx.t();
 	for(int x = 0; x < wx; x++)
@@ -80,7 +81,7 @@ Mat ImageRegistrationLK::calcDiffVector(Image I, Image J, int wx, int wy)
 
 			Vec2d gI = I.grad(x,y);
 			double Ix = gI[0], Iy = gI[1];
-			Mat D2 = (Mat_<double>(6,1) << Ix, Iy, x*Ix, y*Ix, x*Iy, y*Iy)*delta;
+			Mat D2 = (Mat_<double>(2,1) << Ix, Iy)*delta;
 
 			b += D2;
 		}
@@ -177,9 +178,9 @@ void ImageRegistrationLK::runRegistration()
 		J.Centralise(Vec2d(int(offset.x) >> L, int(offset.y) >> L));
 
 		//setting mask
-		if(_isMaskSet)
-			w.setMask(mask, wx,wy);
-		else
+		//if(_isMaskSet)
+		//	w.setMask(mask, wx,wy);
+		//else
 			w.setDefaultMask(Size(wx,wy));
 
 		cout<<"Calculating G (grad matrix)..."<<endl;
@@ -212,14 +213,10 @@ void ImageRegistrationLK::runRegistration()
 
 			tv.at<double>(0,0) = v_opt.at<double>(0,0);
 			tv.at<double>(1,0) = v_opt.at<double>(1,0);
-			tA.at<double>(0,0) = 1+v_opt.at<double>(2,0); tA.at<double>(0,1) = v_opt.at<double>(3,0);
-			tA.at<double>(1,0) = v_opt.at<double>(4,0); tA.at<double>(1,1) = 1+v_opt.at<double>(5,0);
 
-			v = v + A*tv;
-			A = A*tA;
+			v = v + tv;
 
 			cout<<"v = "<<v<<endl;
-			cout<<"A = "<<endl<<A<<endl;
 
 			iter++;
 			if(iter>= MaxIter)
@@ -231,8 +228,8 @@ void ImageRegistrationLK::runRegistration()
 
 		}
 
-		affTransform.at<double>(0,0) = A.at<double>(0,0); affTransform.at<double>(0,1) = A.at<double>(0,1);
-		affTransform.at<double>(1,0) = A.at<double>(1,0); affTransform.at<double>(1,1) = A.at<double>(1,1);
+		affTransform.at<double>(0,0) = 1; affTransform.at<double>(0,1) = 0;
+		affTransform.at<double>(1,0) = 0; affTransform.at<double>(1,1) = 1;
 		affTransform.at<double>(0,2) = v.at<double>(0,0)*(1<<L); affTransform.at<double>(1,2) = v.at<double>(1,0)*(1<<L);
 
 		if(L>0)
@@ -324,5 +321,22 @@ double ImageRegistrationLK::calcSquareDifference(Image I, Image J, int wx, int w
 			diff +=	delta*delta*w.getValue(x,y);
 		}
 	}
+	return diff;
+}
+
+Mat ImageRegistrationLK::getDifference()
+{
+	Mat invA;// = (Mat_<double>(2,3) << 1.0, 0.0, -5.0, 0.0, 1.0, 5.0);
+	invertAffineTransform(affTransform, invA);
+	Image I(fixed);
+	Mat J1;
+	warpAffine(moving, J1, invA, fixed.size());
+	Image J(J1);
+	Mat diff(window, CV_32FC1);
+	for(int i=0; i<window.width;i++)
+		for(int j=0; j<window.height; j++)
+		{
+			diff.at<float>(j,i) = abs(I.at(offset.x + i, offset.y + j) - J.at(offset.x + i, offset.y + j));//*w.getValue(i,j);
+		}
 	return diff;
 }
