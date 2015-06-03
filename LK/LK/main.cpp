@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 	ofstream fout("result.txt");
 
 
-	Mat bg = imread("bg6.jpeg", CV_LOAD_IMAGE_GRAYSCALE);
+	Mat bg = imread("bg5.jpeg", CV_LOAD_IMAGE_GRAYSCALE);
 	bg.convertTo(bg, CV_64FC1);
 	Mat pattern = imread("pattern3.jpeg", CV_LOAD_IMAGE_GRAYSCALE);
 	pattern.convertTo(pattern, CV_64FC1);
@@ -17,8 +17,9 @@ int main(int argc, char *argv[])
 
 	// resize pattern
 	Mat newpat;
-	pattern.
-	resize(pattern, newpat, Size(0,0), 1.0, 1.0, INTER_LINEAR);
+	//Mat X = getRotationMatrix2D(Point2f(pattern.size().width/2, pattern.size().height/2), 17, 0.85);
+	//warpAffine(pattern, newpat, X,Size(0,0));
+	//resize(pattern, newpat, Size(0,0), 1.0, 1.0, INTER_LINEAR);
 	pattern.copyTo(newpat);
 
 	Mat fixed = formImage(bg, pattern, mask, Point2d(100, 100));
@@ -28,8 +29,8 @@ int main(int argc, char *argv[])
 	//Mat moving = imread("real2.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 	//moving.convertTo(moving, CV_64FC1);
 
-	//int wx = MAX(pattern.size().width, newpat.size().width), wy = MAX(pattern.size().height, newpat.size().height);
-	int wx = 215, wy = 249;
+	int wx = MAX(pattern.size().width, newpat.size().width), wy = MAX(pattern.size().height, newpat.size().height);
+	//int wx = 215, wy = 249;
 
 	imwrite("1.jpeg", fixed);
 	imwrite("2.jpeg", moving);
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
 	reg.setWindowSize( Size(wx,wy));
 	reg.setWindowOffset(Point2d(397,174));
 	//reg.setMask(mask);
-	//reg.runRegistration();
+	reg.runRegistration();
 
 	Mat aff = reg.getTransform();
 

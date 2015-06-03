@@ -238,8 +238,11 @@ void ImageRegistrationLK::runRegistration()
 				affTransform, Point2d(int(offset.x) >> L-1, int(offset.y) >> L-1), 
 				Size(window.width >> L-1, window.height >> L-1)));
 
+			imwrite("afterThreshold.jpg", windowMask);
 			// segmentation with 2 labels
 			windowMask = patternSegmentation(windowMask, 2);
+
+			imwrite("afterMRF.jpg", windowMask);
 
 			windowMask.copyTo(mask);
 			_isMaskSet = true;
@@ -251,20 +254,16 @@ void ImageRegistrationLK::runRegistration()
 
 Mat ImageRegistrationLK::markPatternAndBackground(Mat fixed, Mat moving, Mat aff, Point2d pos, Size window)
 {
-	//Mat fmap(fixed.rows, fixed.cols, fixed.type);
-
-	//Mat trans;
-	//warpAffine(fixed, trans, aff, moving.size());
-
-	//Mat fmap = abs(moving - trans);
-
 	Mat A = aff(Range(0,2), Range(0,2));
 	Mat T = aff(Range(0,2), Range(2,3));
 
 	Image I(fixed);
 	Image J(moving);
 	I.Centralise(Vec2d(pos.x, pos.y));
-	J.Centralise(Vec2d(pos.x, pos.y));	
+	J.Centralise(Vec2d(pos.x, pos.y));
+
+	//Mat shifted;
+	//warpAffine(moving, shifted, aff, moving.size(),WARP_INVERSE_MAP);
 
 	Mat fmap = Mat::ones(window, CV_32FC1);
 
@@ -276,10 +275,12 @@ Mat ImageRegistrationLK::markPatternAndBackground(Mat fixed, Mat moving, Mat aff
 			Mat pt1 = A*pt0 + T;
 			double x = pt1.at<double>(0,0), y = pt1.at<double>(1,0);
 			totalMean += (I.at(i,j) - J.at(x,y))*(I.at(i,j) - J.at(x,y));
+			//double diff = fixed.at<double>(int(pos.y+j),int(pos.x+i)) - shifted.at<double>(int(pos.y+j),int(pos.x+i));
+			//totalMean += diff*diff;
 		}
 
 		totalMean = totalMean/(window.width*window.height);
-		fmap = fmap*totalMean;
+		//fmap = fmap*totalMean;
 
 		for(int i=0; i<window.width-2; i+=3)
 			for(int j=0; j<window.height-2; j+=3)
@@ -288,16 +289,18 @@ Mat ImageRegistrationLK::markPatternAndBackground(Mat fixed, Mat moving, Mat aff
 				for(int x = 0; x<3; x++)
 					for(int y=0; y<3; y++)
 					{
-						Mat pt0 = (Mat_<double>(2,1) << i+x, j+x);
+						Mat pt0 = (Mat_<double>(2,1) << i+x, j+y);
 						Mat pt1 = A*pt0 + T;
 						double x1 = pt1.at<double>(0,0), y1 = pt1.at<double>(1,0);
-						mean3x3 += (I.at(i+x,j+x) - J.at(x1,y1))*(I.at(i+x,j+x) - J.at(x1,y1));
+						mean3x3 += (I.at(i+x,j+y) - J.at(x1,y1))*(I.at(i+x,j+y) - J.at(x1,y1));
+						//double diff = fixed.at<double>(int(pos.y+j+y),int(pos.x+i+x)) - shifted.at<double>(int(pos.y+j+y),int(pos.x+i+x));
+						//mean3x3 += diff*diff;
 					}
 					mean3x3 = mean3x3/9;
 					for(int x = 0; x<3; x++)
 						for(int y=0; y<3; y++)
 						{
-							fmap.at<float>(j+y, i+x) = mean3x3;
+							fmap.at<float>(j+y, i+x) = float(mean3x3);
 						}
 			}
 

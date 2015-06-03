@@ -31,19 +31,9 @@ Mat patternSegmentation(Mat I, int num_labels)
 
 	try
 	{
-		GCoptimizationGeneralGraph *gc = new GCoptimizationGeneralGraph(num_pixels,num_labels);
+		GCoptimizationGridGraph *gc = new GCoptimizationGridGraph(width, height,num_labels);
 		gc->setDataCost(data);
 		gc->setSmoothCost(smooth);
-
-		// next set up neighbors
-		for (int y = 1; y < height - 1; y++ )
-			for (int  x = 1; x < width - 1; x++ )
-			{
-				gc->setNeighbors(x+y*width,x+(y-1)*width);
-				gc->setNeighbors(x+y*width,x-1+(y-1)*width);
-				gc->setNeighbors(x+y*width,x+1+(y-1)*width);
-				gc->setNeighbors(x+y*width,x-1+y*width);
-			}
 
 		//printf("\nBefore optimization energy is %d",gc->compute_energy());
 		gc->expansion(3);// run expansion for 2 iterations. For swap use gc->swap(num_iterations);
