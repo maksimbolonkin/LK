@@ -5,6 +5,18 @@
 
 using namespace std;
 
+// Registration modes
+enum
+{
+	REG_SHIFT = 1,
+	REG_SCALE = 2,
+	REG_ROTATION = 4,
+	REG_SCEW = 8,
+	REG_UNIFORM_SCALE = 16,
+	REG_AFFINE = 32
+};
+
+
 class ImageRegistrationLK
 {
 private:
@@ -16,6 +28,7 @@ private:
 	Size window;
 	Point2d offset;
 	bool _isMaskSet;
+	int regMode;
 
 	class WindowFunction
 	{
@@ -39,6 +52,10 @@ private:
 	double getPixel(Mat I, int i, int j);
 	Mat GetPyramidNextLevel(Mat I);
 
+	Mat getParametrisationMatrix();
+	Mat interpretResult_shift(Mat v_opt);
+	Mat interpretResult_affine(Mat v_opt);
+
 public:
 	ImageRegistrationLK();
 
@@ -49,6 +66,7 @@ public:
 	void setMovingImage(Mat f);
 	void setWindowSize(Size w);
 	void setWindowOffset(Point2d pos);
+	void setRegistrationMode(int _regMode);
 	void setMask(Mat m);
 	Mat getTransform();
 

@@ -15,7 +15,7 @@ Mat patternSegmentation(Mat I, int num_labels)
 			if (I.at<float>(i/width, i%width) < 0.5 )
 			{
 				if(  l == 0 ) data[i*num_labels+l] = 0;
-				else data[i*num_labels+l] = 10;
+				else data[i*num_labels+l] = 1;
 			}
 			else 
 			{
