@@ -168,6 +168,8 @@ void ImageRegistrationLK::runRegistration()
 	// setting default window for top level of pyramid
 	w.setDefaultMask(window);
 
+	//bool lastTwice = false;	// attempt to run last level twice (with old and new mask)
+
 	for(int L = NumOfLevels-1; L>=0; L--)
 	{
 		cout<<"----- Level "<<L<<" -----"<<endl;
@@ -269,6 +271,28 @@ void ImageRegistrationLK::runRegistration()
 			windowMask.copyTo(mask);
 			_isMaskSet = true;
 		}
+		//else
+		//{
+		//	if(!lastTwice)
+		//	{
+		//		// trying to run last level of pyramid twice for better precision
+		//		Mat windowMask = Mat( markPatternAndBackground(PyramidI[0], PyramidJ[0], 
+		//		affTransform, Point2d(int(offset.x), int(offset.y)), 
+		//		Size(window.width, window.height)));
+		//		L++;
+
+		//		imwrite("afterThreshold.jpg", windowMask);
+		//		// segmentation with 2 labels
+		//		windowMask = patternSegmentation(windowMask, 2);
+
+		//		imwrite("afterMRF.jpg", windowMask);
+
+		//		windowMask.copyTo(mask);
+		//		_isMaskSet = true;
+
+		//		lastTwice = true;
+		//	}
+		//}
 	}	// end of pyramid loop
 
 
@@ -321,7 +345,7 @@ Mat ImageRegistrationLK::markPatternAndBackground(Mat fixed, Mat moving, Mat aff
 							fmap.at<float>(j+y, i+x) = float(mean3x3);
 						}
 			}
-
+		normalize(fmap, fmap, 0.0, 255.0, NORM_MINMAX);
 		return fmap;
 }
 
@@ -357,14 +381,16 @@ Mat ImageRegistrationLK::getDifference()
 	//warpAffine(moving, J1, invA, fixed.size());
 	Image J(moving);
 	J.Centralise(offset);
-	J.setTransform(affTransform(Range(0,2), Range(0,2)), affTransform(Range(0,2), Range(2,3)));
+	Mat A = affTransform(Range(0,2), Range(0,2));
+	Mat d =   affTransform(Range(0,2), Range(2,3));
+	J.setTransform(A,d);
 	Mat diff(window, CV_32FC1);
 	for(int i=0; i<window.width;i++)
 		for(int j=0; j<window.height; j++)
 		{
 			diff.at<float>(j,i) = abs(I.at(i, j) - J.at(i, j));//*w.getValue(i,j);
 		}
-		return diff;
+	return diff;
 }
 
 void ImageRegistrationLK::setRegistrationMode(int _regMode)

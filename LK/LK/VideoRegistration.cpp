@@ -10,25 +10,25 @@ int main(int argc, char *argv[])
 
 	char path[100];
 	
-	int wx = 181, wy = 33;
-	Point2d offset(903, 426);
+	int wx = 290, wy = 98;
+	Point2d offset(1601, 424);
 
-	ImageRegistrationLK reg;
-	
-	for(int i=1; i<10; i++)
+	for(int i=7; i<15; i++)
 	{
-		sprintf(path, "my_video/%d.jpg", i);
+		cout<<i<<" -> "<<i+1<<endl;
+
+		sprintf(path, "accident_video/%d.bmp", i);
 		Mat fixed = imread(path, CV_LOAD_IMAGE_GRAYSCALE);
 		fixed.convertTo(fixed, CV_64FC1);
 
-		sprintf(path, "my_video/%d.jpg", i+1);
+		sprintf(path, "accident_video/%d.bmp", i+1);
 		Mat moving = imread(path, CV_LOAD_IMAGE_GRAYSCALE);
 		moving.convertTo(moving, CV_64FC1);
 
-		
+		ImageRegistrationLK reg;
 		reg.setFixedImage(fixed);
 		reg.setMovingImage(moving);
-		reg.setNumberOfLevels(3);
+		reg.setNumberOfLevels(2);
 		//reg.setMaxIterations(100);
 		reg.setWindowSize( Size(wx,wy));
 		reg.setWindowOffset(offset);
@@ -40,13 +40,18 @@ int main(int argc, char *argv[])
 		fout<<i<<" -> "<<i+1<<endl;
 		fout<<aff<<endl<<endl;
 
+		char out[100];
+		sprintf(out, "plate-diff-%d-%d.jpeg", i, i+1);
+		Mat newimg;
+		aff.at<double>(0,2) += offset.x - aff.at<double>(0,0)*offset.x - aff.at<double>(0,1)*offset.y;
+		aff.at<double>(1,2) += offset.y - aff.at<double>(1,0)*offset.x - aff.at<double>(1,1)*offset.y;
+		warpAffine(moving, newimg, aff, moving.size(), WARP_INVERSE_MAP);
+		//imwrite(out, abs(fixed-newimg));
+		imwrite(out, reg.getDifference());
+
 		double alpha = aff.at<double>(0,0);
 		wx *= alpha; wy *=alpha;
 		offset.x += aff.at<double>(0,2); offset.y += aff.at<double>(1,2);	//???????
-
-		char out[100];
-		sprintf(out, "diff-%d-%d.jpeg", i, i+1);
-		imwrite(out, reg.getDifference());
 	}
 
 	fout.close();

@@ -30,14 +30,15 @@ int main(int argc, char *argv[])
 
 	//----- read from file
 
-	Mat fixed = imread("fixed1.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+	Mat fixed = imread("my_video/15.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 	fixed.convertTo(fixed, CV_64FC1);
-	Mat moving = imread("moving1.jpg", CV_LOAD_IMAGE_GRAYSCALE);
+	Mat moving = imread("my_video/14.jpg", CV_LOAD_IMAGE_GRAYSCALE);
 	moving.convertTo(moving, CV_64FC1);
-	int wx = 347, wy = 166;
-	Point2d offset(1264, 511);
+	int wx = 380, wy = 232;
+	Point2d offset(989, 359);
 
-	
+	imwrite("1.jpeg", fixed);
+	imwrite("2.jpeg", moving);
 
 
 	//cout<<"Images have been read..."<<endl;
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
 	ImageRegistrationLK reg;
 	reg.setFixedImage(fixed);
 	reg.setMovingImage(moving);
-	reg.setNumberOfLevels(4);
+	reg.setNumberOfLevels(3);
 	//reg.setMaxIterations(100);
 	reg.setWindowSize( Size(wx,wy));
 	reg.setWindowOffset(offset);
@@ -57,7 +58,9 @@ int main(int argc, char *argv[])
 
 	fout<<aff<<endl;
 	Mat newimg;
-	warpAffine(fixed, newimg, aff, moving.size());
+	aff.at<double>(0,2) += offset.x - aff.at<double>(0,0)*offset.x - aff.at<double>(0,1)*offset.y;
+	aff.at<double>(1,2) += offset.y - aff.at<double>(1,0)*offset.x - aff.at<double>(1,1)*offset.y;
+	warpAffine(moving, newimg, aff, moving.size(), WARP_INVERSE_MAP);
 
 	//Mat diffIm = reg.markPatternAndBackground(fixed, moving, aff, Point2d(100,100),  Size(wx,wy));
 
@@ -76,7 +79,7 @@ int main(int argc, char *argv[])
 	Mat diff=reg.getDifference();
 	imwrite("diff.jpeg", diff);
 
-	imwrite(argv[3], newimg);
+	imwrite(argv[3], abs(fixed-newimg));
 
 	fout.close();
 }
