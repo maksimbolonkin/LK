@@ -1,0 +1,8 @@
+cmake_minimum_required(VERSION 2.8)
+project( LK )
+find_package( OpenCV REQUIRED )
+add_library(ImageRegistrationLK ImageRegistrationLK.cpp)
+add_library(MRFSegmentation MRFSegmentation.cpp)
+add_library(Image Image.cpp)
+add_executable( LK main.cpp )
+target_link_libraries( LK ${OpenCV_LIBS} ImageRegistrationLK Image MRFSegmentation)
